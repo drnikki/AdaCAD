@@ -1,7 +1,5 @@
-import { L } from '@angular/cdk/keycodes';
 import { Injectable } from '@angular/core';
 import { Cell } from '../model/cell';
-import { Interlacement, LoomCoords } from '../model/datatypes';
 import { Draft } from '../model/draft';
 import { Loom } from '../model/loom';
 import utilInstance from '../model/util';
@@ -26,7 +24,7 @@ import { WorkspaceService } from './workspace.service';
 export class LoomutilsService {
 
 
-
+  utils: Array<LoomUtil> = [];
 
   constructor(public ws: WorkspaceService) { 
 
@@ -164,6 +162,12 @@ export class LoomutilsService {
         return this.flipAndComputeDrawdown(l);
       }
     }
+
+    this.utils = [frame_utils, direct_utils, jacquard_utils];
+
+
+
+
   }
 
   /**
@@ -386,6 +390,12 @@ export class LoomutilsService {
     }
 
     return Promise.resolve(t_flip);
+}
+
+getUtils(type: string){
+  if(type === 'jacqard') return this.utils[2];
+  if(type === 'direct') return this.utils[1];
+  if(type === 'frame') return this.utils[0];
 }
 
 

@@ -1340,35 +1340,35 @@ recalculateDirectTreadling(drawdown: Array<Array<Cell>>){
     * @param draft the input draft to recompute the loom state from
     * @param type the type of loom we are computing upon
     */
-   recomputeLoom(draft:Draft, type: string){
+  //  recomputeLoom(draft:Draft, type: string){
 
-    console.log("RECOMPUTE", type)
-    if(type === 'jacquard') return;
+  //   console.log("RECOMPUTE", type)
+  //   if(type === 'jacquard') return;
 
-    let mock = [];
+  //   let mock = [];
 
-    this.clearAllData(draft.warps, draft.wefts, type);
+  //   this.clearAllData(draft.warps, draft.wefts, type);
 
-    //pretend that we are computing the values as though they were added one by one
-    for (var i = 0; i < draft.pattern.length; i++) {
-        mock.push([]);
-      for(var j = 0; j < draft.pattern[0].length; j++){
-        mock[i].push(new Cell(null));
-      }
-    }
+  //   //pretend that we are computing the values as though they were added one by one
+  //   for (var i = 0; i < draft.pattern.length; i++) {
+  //       mock.push([]);
+  //     for(var j = 0; j < draft.pattern[0].length; j++){
+  //       mock[i].push(new Cell(null));
+  //     }
+  //   }
 
-    for (var i = 0; i < draft.pattern.length; i++) {
-      for(var j = 0; j < draft.pattern[0].length; j++){
+  //   for (var i = 0; i < draft.pattern.length; i++) {
+  //     for(var j = 0; j < draft.pattern[0].length; j++){
             
-          if(draft.pattern[i][j].isUp()){
-              mock[i][j].setHeddle(draft.pattern[i][j].isUp());
-              this.updateFromDrawdown({i:i,j:j, si:-1}, mock, type);
-              var u_threading = this.updateUnused(this.threading, this.min_frames, this.num_frames, "threading", type);
-              var u_treadling = this.updateUnused(this.treadling, this.min_treadles, this.num_treadles, "treadling", type);
-          }
-      }
-    }
-  }
+  //         if(draft.pattern[i][j].isUp()){
+  //             mock[i][j].setHeddle(draft.pattern[i][j].isUp());
+  //             this.updateFromDrawdown({i:i,j:j, si:-1}, mock, type);
+  //             var u_threading = this.updateUnused(this.threading, this.min_frames, this.num_frames, "threading", type);
+  //             var u_treadling = this.updateUnused(this.treadling, this.min_treadles, this.num_treadles, "treadling", type);
+  //         }
+  //     }
+  //   }
+  // }
 
 
 }//end class

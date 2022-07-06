@@ -13,6 +13,7 @@ import { UploadService } from '../../core/uploads/upload.service';
 import { SystemsService } from '../../core/provider/systems.service';
 import { WorkspaceService } from '../../core/provider/workspace.service';
 import { DesignmodesService } from '../../core/provider/designmodes.service';
+import { LoomUtil, LoomutilsService } from '../../core/provider/loomutils.service';
 
 
 /**
@@ -96,7 +97,8 @@ export class TreeService {
     private dm: DesignmodesService,
     private ops: OperationService,
     private upSvc: UploadService,
-    private systemsservice: SystemsService) { 
+    private systemsservice: SystemsService,
+    private lu: LoomutilsService) { 
   }
 
 
@@ -198,7 +200,6 @@ export class TreeService {
               const draftNode = <DraftNode> this.getNode(param_val);
               const uniqueVals = utilInstance.filterToUniqueValues(draftNode.loom.threading);
               const inlet_nums = uniqueVals.length;
-              console.log("loom is ", draftNode.loom)
               inlets = inlets.slice(0,static_inputs.length);
               for(let i = 0; i < inlet_nums; i++){
                 inlets.push(i+1);
@@ -349,7 +350,11 @@ export class TreeService {
       dn.loom.setMinFrames(this.ws.min_frames);
       dn.loom.setMinTreadles(this.ws.min_treadles);
       const loom_mode = this.dm.getSelectedDesignMode('loom_types');
-      dn.loom.recomputeLoom(dn.draft, loom_mode.value);
+      //dn.loom.recomputeLoom(dn.draft, loom_mode.value);
+      const utils = this.lu.getUtils(loom_mode.value);
+      utils.updateFromDrawdown(dn.draft).then(loom => {
+        dn.loom = loom;
+      })
     });
 
   }
@@ -363,7 +368,7 @@ export class TreeService {
       component: <SubdraftComponent> sd.instance,
       dirty: true, 
       draft: cloneDeep(draft),
-      loom: null
+      loom: null    
     }
 
     sd.dirty = true;
@@ -436,7 +441,13 @@ export class TreeService {
    (<DraftNode> nodes[0]).loom = new Loom(draft, this.ws.type, this.ws.min_frames, this.ws.min_treadles);
    const loom_mode = this.dm.getSelectedDesignMode('loom_types');
     console.log("loom mode", loom_mode.value);
-   (<DraftNode> nodes[0]).loom.recomputeLoom(draft, loom_mode.value);
+    const utils = this.lu.getUtils(loom_mode.value);
+    utils.updateFromDrawdown(draft).then(loom => {
+      (<DraftNode> nodes[0]).loom = loom;
+    });
+
+
+   //(<DraftNode> nodes[0]).loom.recomputeLoom(draft, loom_mode.value);
    }else{
     (<DraftNode> nodes[0]).loom = loom;
    }
