@@ -95,9 +95,17 @@ class Util {
      * @param val the value we are seeking
      * @returns number of occurances
      */
-    countOccurrences(arr, val){
+    countOccurrences(arr: Array<any>, val){
       return arr.reduce((a, v) => (v === val ? a + 1 : a), 0)
     }
+
+    countOccurrencesInArray(arr: Array<Array<any>>, val){
+      return arr.reduce((a, v) => {
+        if(v.find(el => el === val)) a = a +1;
+        return a;
+      }, 0)
+    }
+      
       
     /*Input: an array of booleans
     Result: the number of "ones" in the "bitstring" (in this context, returns the number of true valued booleans in the array of booleans)

@@ -851,8 +851,6 @@ export class Draft{
    */  
   updateDraftFromThreading(updates, loom){
 
-    console.log("updates", updates)
-
     for(var u in updates){
 
       if(updates[u].i !== undefined){
@@ -879,12 +877,13 @@ export class Draft{
    */  
   updateDraftFromTreadling(updates, loom){
 
+
     for(var u in updates){
       
       if(updates[u].i !== undefined){
 
         var idxs = loom.getAffectedDrawdownPoints({weft: updates[u].i, treadle: updates[u].j});
-        
+
         for(var i = 0; i < idxs.wefts.length; i++){
           for (var j = 0; j < idxs.warps.length; j++){
              this.pattern[idxs.wefts[i]][idxs.warps[j]].setHeddle(updates[u].val);
@@ -1695,8 +1694,6 @@ computeYarnPaths(shuttles: Array<Shuttle>){
 
       }
     }
-
-    console.log("this loom", loom);
 
     var u_threading = loom.updateUnused(loom.threading, loom.min_frames, loom.num_frames, "threading", loom.type);
     var u_treadling = loom.updateUnused(loom.treadling, loom.min_treadles, loom.num_treadles, "treadling", loom.type);

@@ -418,7 +418,8 @@ export class Loom{
      */
     updateFromDrawdown(ndx: Interlacement, drawdown: Array<Array<Cell>>, type: string): LoomUpdate{
       let updates = this.updateConfig(this.getConfig(ndx, drawdown, type), type);
-      this.recalculateDirectTreadling(drawdown);
+      
+      if(type == 'direct')  this.recalculateDirectTreadling(drawdown);
       return updates;
     }
 
@@ -677,7 +678,7 @@ getDirectConfig(ndx:Interlacement, drawdown: Array<Array<Cell>>):LoomCoords{
       
       //look through each treadle, and see if the tie up needs to be updated
       for(var j = 0; j < this.num_treadles; j++){
-          const idx = this.treadling.findIndex(element => element.findIndex(subel => subel === j));
+          const idx = this.treadling.findIndex(element => element.findIndex(subel => subel === j) !== -1);
   
         if(idx !== -1){
             //clear the tieup associated with this treadle
@@ -708,6 +709,8 @@ getDirectConfig(ndx:Interlacement, drawdown: Array<Array<Cell>>):LoomCoords{
    * @returns a list of the changes made
    */
      updateDirectConfig(config:LoomCoords):LoomUpdate{
+
+      console.log("UPDATE DIRECT CONFIG")
 
       var updates:LoomUpdate = {
         threading: [],
@@ -766,7 +769,7 @@ getDirectConfig(ndx:Interlacement, drawdown: Array<Array<Cell>>):LoomCoords{
 
           //get all 
           for(var i = 0; i < this.treadling.length; i++){
-              if(this.treadling[i] === obj.treadle) active_treadle_rows.push(i); 
+              if(this.treadling[i].find(el => el === obj.treadle) !== undefined) active_treadle_rows.push(i); 
           }
 
           for(var j = 0; j < this.threading.length; j++){
@@ -778,7 +781,6 @@ getDirectConfig(ndx:Interlacement, drawdown: Array<Array<Cell>>):LoomCoords{
 
       //this is an action within the treadling
       if(obj.treadle !== undefined && obj.weft !== undefined){
-
 
           //whcih frames are associated with this treadle via tie up?
           for(var i = 0; i < this.tieup.length; i++){
@@ -949,10 +951,11 @@ getDirectConfig(ndx:Interlacement, drawdown: Array<Array<Cell>>):LoomCoords{
       if(!this.inTreadlingRange({i:ndx.i, j:ndx.j, si: -1})) return updates;
 
       const to_delete = [];
+      
       if(treadle_arr.length !== 0){
         treadle_arr.forEach((treadle, arr_ndx) => {
             to_delete.push(treadle);
-            updates.push({i:ndx.i, j: arr_ndx, val:false});
+            updates.push({i:ndx.i, j: treadle, val:false});
           
         });
 
@@ -1070,24 +1073,34 @@ getDirectConfig(ndx:Interlacement, drawdown: Array<Array<Cell>>):LoomCoords{
       var zeros = []; 
       var map = [];      
 
+      if(type === 'treadling') return;
 
 
       //first check if the frames/treadles are being used or not
       //push unusued frames to zero:
       for(var i = 0; i < num; i++){
-        var occurances = utilInstance.countOccurrences(struct, i);
+        var occurances;
+        if(type == 'threading') occurances = utilInstance.countOccurrences(struct, i);
+        else occurances = utilInstance.countOccurrencesInArray(<Array<Array<any>>>struct, i);
         status[i] = occurances;
         if(occurances === 0) zeros.push(i);
       }
 
+      console.log("zeros", type, zeros, status)
       
       //if all the frames/treadles have assignments- don't do anything
       if(zeros.length == 0) return false;
       
       //push non-zero rows in order to map first
       for(var i = 0; i < num; i++){
-        if(utilInstance.countOccurrences(zeros, i) == 0){
-          map.push(i);
+        if(type == 'threading'){
+          if(utilInstance.countOccurrences(zeros, i) == 0){
+            map.push(i);
+          }
+        } else{
+          if(utilInstance.countOccurrencesInArray(<Array<Array<any>>>struct, i) == 0){
+            map.push(i);
+          }
         }
       }
 
@@ -1118,7 +1131,8 @@ getDirectConfig(ndx:Interlacement, drawdown: Array<Array<Cell>>):LoomCoords{
           for(var j = 0; j < struct.length; j++){
             
             if(old_struct[j] === old_ndx){ 
-              struct[j] = new_ndx;
+              if(type == 'threading') struct[j] = new_ndx;
+              else struct[j] = [new_ndx];
             }
           }
 
@@ -1137,7 +1151,9 @@ getDirectConfig(ndx:Interlacement, drawdown: Array<Array<Cell>>):LoomCoords{
 
       for(var i = 0; i < num; i++){
 
-         var old_index = map[i];
+         var old_index;
+         if(type === 'threading') old_index = map[i];
+         else old_index = (map.length > 0)? map[i][0] : -1;
 
          if(status[old_index] === 0){
 
@@ -1241,26 +1257,24 @@ recalculateDirectTreadling(drawdown: Array<Array<Cell>>){
     //if all the frames/treadles have assignments- don't do anything
     if(zeros.length == 0) return false;
     
-    //push non-zero rows in order to map first
+
+    console.log("unusued frames", zeros, type);
+
+    // //push non-zero rows in order to map first
     for(var i = 0; i < num; i++){
       if(utilInstance.countOccurrences(zeros, i) == 0){
         map.push(i);
       }
     }
 
-    //then add zero rows
+    // //then add zero rows
     for(var i = 0; i < zeros.length; i++){
       map.push(zeros[i]);
     }
 
     var swap_happened = false;
     var old_struct = struct.slice();
-    var old_tieup = [];
     
-    for(var i = 0; i < this.tieup.length; i++){
-      old_tieup.push(this.tieup[i].slice());
-    }
-
     
     //reassign the frames/treadles and tieup 
     for(var i = 0; i < map.length; i++){
@@ -1276,16 +1290,6 @@ recalculateDirectTreadling(drawdown: Array<Array<Cell>>){
           
           if(old_struct[j] === old_ndx){ 
             struct[j] = new_ndx;
-          }
-        }
-
-        if(type === "threading"){
-          for(var j = 0; j < this.tieup[old_ndx].length; j++){
-            this.tieup[new_ndx][j] = old_tieup[old_ndx][j]; 
-          }
-        }else{
-          for(var j = 0; j < this.tieup.length; j++){
-            this.tieup[j][new_ndx] = old_tieup[j][old_ndx];
           }
         }
       }
@@ -1305,7 +1309,6 @@ recalculateDirectTreadling(drawdown: Array<Array<Cell>>){
               //this.num_frames--;
               this.updateNumFramesFromThreading();
               this.resetFrameMapping(this.num_frames, this.type);
-              this.tieup.splice(i, 1);
             }
 
           } 
@@ -1322,13 +1325,14 @@ recalculateDirectTreadling(drawdown: Array<Array<Cell>>){
             //this.num_frames--;
             this.updateNumFramesFromThreading();
             this.resetFrameMapping(this.num_frames, this.type);
-            this.tieup.splice(i, 1);
 
           } 
        }
     }
 
-    return (swap_happened || this.num_frames < num);
+    //return (swap_happened || this.num_frames < num);
+
+    return false;
 }
 
    /**
@@ -1338,6 +1342,7 @@ recalculateDirectTreadling(drawdown: Array<Array<Cell>>){
     */
    recomputeLoom(draft:Draft, type: string){
 
+    console.log("RECOMPUTE", type)
     if(type === 'jacquard') return;
 
     let mock = [];

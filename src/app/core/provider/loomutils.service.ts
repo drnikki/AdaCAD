@@ -52,6 +52,7 @@ export class LoomutilsService {
       dx: "draft from drawdown or threading/tieup/treadling. Assumes you are using a direct tie and mutiple treadle assignments",
       updateFromDrawdown: (d: Draft) : Promise<Loom>  => {
         
+        console.log("UPDATE FROM DRAWDOWN")
         return this.flipPattern(
             d.pattern, 
             (this.ws.selected_origin_option == 0 || this.ws.selected_origin_option == 1), 
@@ -78,14 +79,14 @@ export class LoomutilsService {
               }
 
                //add tieup
-               obj.loom.tieup = [];
-               for(let i = 0; i <= obj.frame; i++){
-                obj.loom.tieup.push([]);
-                 for(let j = 0; j <= obj.frame; j++){
-                   if(i == j) obj.loom.tieup[i][j] = true;
-                   else obj.loom.tieup[i][j] = false;
-                 }
-               }
+              //  obj.loom.tieup = [];
+              //  for(let i = 0; i <= obj.frame; i++){
+              //   obj.loom.tieup.push([]);
+              //    for(let j = 0; j <= obj.frame; j++){
+              //      if(i == j) obj.loom.tieup[i][j] = true;
+              //      else obj.loom.tieup[i][j] = false;
+              //    }
+              //  }
  
                //now flip things back based on origin. 
                return obj.loom;
@@ -391,7 +392,6 @@ export class LoomutilsService {
 
 
 
-}
 
   
   

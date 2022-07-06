@@ -668,7 +668,7 @@ export class WeaverComponent implements OnInit {
     
     this.loom.overloadType(e.loomtype);
 
-    if(this.loom.type === 'frame'){
+    if(this.loom.type !== 'jacquard'){
       this.weaveRef.recomputeLoom();
     }
     
