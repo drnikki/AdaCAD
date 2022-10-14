@@ -26,6 +26,7 @@ AdaCAD is built with Angular, a web development framework for progressive web ap
 - [Node.JS](https://nodejs.dev/learn/how-to-install-nodejs) and [Node Package Manager (npm)](https://nodejs.dev/learn/an-introduction-to-the-npm-package-manager)
 - Intermediate JavasScript/TypeScript – if you know JavaScript but not TypeScript, it should be fairly easy to pick up [TypeScript basics](https://www.typescriptlang.org/docs/handbook/2/basic-types.html).
 - Basic HTML/CSS – enough to understand how these file types are structured and interact with scripts
+- You should also have Angular installed globally.  To do this, run `npm install -g @angular/cli@latest`
 
 ### Installation for developers
 1. Clone this repository onto your local hard drive.
